@@ -1,6 +1,8 @@
 #ifndef IDF_MATRIX_H
 #define IDF_MATRIX_H
 
+#include "Matrix.Helpers.hpp"
+
 #include <cstddef>
 #include <initializer_list>
 #include <vector>
@@ -31,19 +33,19 @@ public:
   Matrix(const Matrix&) = default; // copy
   Matrix& operator=(const Matrix&) = default;
 
-  // Construct & assign from Matrix_ref.
-  // template<typename U>
-  // Matrix(const Matrix_ref<U, N>&);
-  // template<typename U>
-  // Matrix& operator=(const Matrix_ref<U, N>&);
-
-  // Specify the extents.
+  // Constructor that specifies extents.
   template<typename... Exts>
   explicit Matrix(Exts... exts);
 
   // Initialize & assign from list.
-  // Matrix(Matrix_initializer<T,N>);
-  // Matrix& operator=(Matrix_initializer<T,N>);
+  Matrix(Matrix_initializer<T, N>);
+  Matrix& operator=(Matrix_initializer<T, N>);
+
+  // Construct & assign from Matrix_ref.
+  template<typename U>
+  Matrix(const Matrix_ref<U, N>&);
+  template<typename U>
+  Matrix& operator=(const Matrix_ref<U, N>&);
 
   // Only use {} for elements.
   template<typename U>
@@ -58,15 +60,27 @@ public:
   size_t size() const { return elems.size(); }
 
   // The slice defining subscripting.
-  // const Matrix_slice<N>& descriptor() const { return desc; }
+  const Matrix_slice<N>& descriptor() const { return desc; }
 
   // "Flat" element access;
   T* data() { return elems.data(); }
   const T* data() const { return elems.data(); }
 
+  /// Subscript operators
+
+  // ()
+  template<typename... Args>
+  Enable_if<Matrix_impl::Requesting_element<Args...>(), T&> operator()(
+    Args... args);
+
+  // () const
+  template<typename... Args>
+  Enable_if<Matrix_impl::Requesting_element<Args...>(), const T&> operator()(
+    Args... args);
+
 private:
   // Slice defining extents in the N dimensions.
-  // Matrix_slice<N> desc;
+  Matrix_slice<N> desc;
 
   // The elements.
   std::vector<T> elems;
