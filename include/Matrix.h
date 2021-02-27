@@ -66,17 +66,21 @@ public:
   T* data() { return elems.data(); }
   const T* data() const { return elems.data(); }
 
-  /// Subscript operators
-
-  // ()
+  // m(i,j,k) subscripting with integers.
   template<typename... Args>
   Enable_if<Matrix_impl::Requesting_element<Args...>(), T&> operator()(
     Args... args);
-
-  // () const
   template<typename... Args>
   Enable_if<Matrix_impl::Requesting_element<Args...>(), const T&> operator()(
-    Args... args);
+    Args... args) const;
+
+  // m(s1,s2,s3) subscripting with slices.
+  template<typename... Args>
+  Enable_if<Matrix_impl::Requesting_slice<Args...>(), Matrix_ref<T, N>>
+    operator()(const Args&... args);
+  template<typename... Args>
+  Enable_if<Matrix_impl::Requesting_slice<Args...>(), Matrix_ref<const T, N>>
+    operator()(const Args&... args) const;
 
 private:
   // Slice defining extents in the N dimensions.

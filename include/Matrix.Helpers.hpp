@@ -22,8 +22,14 @@ template<bool B, typename T = void>
 using Enable_if = typename std::enable_if<B, T>::type;
 
 namespace Matrix_impl {
+
 template<typename... Args>
 inline constexpr bool Requesting_element() {
+  return All(Convertible<Args, size_t>()...);
+}
+
+template<typename... Args>
+inline constexpr bool Requesting_slice() {
   return All(Convertible<Args, size_t>()...);
 }
 } // namespace Matrix_impl
