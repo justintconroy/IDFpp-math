@@ -133,9 +133,13 @@ Enable_if<Matrix_type<M>(), Matrix<T, N>&> Matrix<T, N>::operator+=(
 
   return apply(m, [](T& a, const Value_type<M>& b) { a += b; });
 }
-template<typename T, size_t N>
-Matrix<T, N> operator+(const Matrix<T, N>& a, const Matrix<T, N>& b) {
-  Matrix<T, N> res = a;
-  res += b;
-  return res;
+
+template<typename T,
+         typename T2,
+         size_t N,
+         typename RT = Matrix<Common_type<Value_type<T>, Value_type<T2>>, N>>
+  > Matrix<RT, N> operator+(const Matrix<T, N>& a, const Matrix<T2, N>& b);
+Matrix<RT, N> res = a;
+res += b;
+return res;
 }

@@ -1,7 +1,10 @@
 #ifndef IDF_MATRIX_H
 #define IDF_MATRIX_H
 
-#include "Matrix.Helpers.hpp"
+#include "Matrix.Impl.hpp"
+#include "Matrix.Initializer.hpp"
+#include "Matrix.Ref.hpp"
+#include "Matrix.Slice.hpp"
 
 #include <cstddef>
 #include <initializer_list>
@@ -54,7 +57,7 @@ public:
   Matrix& operator=(std::initializer_list<U>) = delete;
 
   // Number of elements in Nth dimension.
-  // size_t extent(size_t n) const { return desc.extents[n]; }
+  size_t extent(size_t n) const { return desc.extents[n]; }
 
   // Total number of elements.
   size_t size() const { return elems.size(); }
@@ -127,6 +130,22 @@ private:
   // The elements.
   std::vector<T> elems;
 };
+template<typename T, size_t N>
+Matrix<T, N>& operator+(const Matrix<T, N> T& m, const T& value);
+template<typename T, size_t N>
+Matrix<T, N>& operator-(const Matrix<T, N> T& m, const T& value);
+template<typename T, size_t N>
+Matrix<T, N>& operator*(const Matrix<T, N> T& m, const T& value);
+template<typename T, size_t N>
+Matrix<T, N>& operator/(const Matrix<T, N> T& m, const T& value);
+template<typename T, size_t N>
+Matrix<T, N>& operator%(const Matrix<T, N> T& m, const T& value);
+
+template<typename T,
+         typename T2,
+         size_t N,
+         typename RT = Matrix<Common_type<Value_type<T>, Value_type<T2>>, N>>
+  > Matrix<RT, N> operator+(const Matrix<T, N>& a, const Matrix<T2, N>& b);
 } // namespace IDF::Math
 
 #endif // IDF_MATRIX_H
