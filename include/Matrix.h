@@ -82,6 +82,44 @@ public:
   Enable_if<Matrix_impl::Requesting_slice<Args...>(), Matrix_ref<const T, N>>
     operator()(const Args&... args) const;
 
+  // m[i] row access.
+  Matrix_ref<T, N - 1> operator[](size_t i) { return row(i); }
+  Matrix_ref<const T, N - 1> operator[](size_t i) const { return row(i); }
+
+  // Row access.
+  Matrix_ref<T, N - 1> row(size_t n);
+  Matrix_ref<const T, N - 1> row(size_t n) const;
+
+  // Column access.
+  Matrix_ref<T, N - 1> col(size_t n);
+  Matrix_ref<const T, N - 1> col(size_t n) const;
+
+  // f(x) for every element x.
+  template<typename F>
+  Matrix& apply(F f);
+
+  // f(x, mx) for corresponding elements of *this and m.
+  template<typename M, typename F>
+  Enable_if<Matrix_type<M>(), Matrix&> apply(const M& m, F f);
+
+  // Assignment with scalar.
+  Matrix& operator=(const T& value);
+
+  // Scalar operators.
+  Matrix& operator+=(const T& value);
+  Matrix& operator-=(const T& value);
+  Matrix& operator*=(const T& value);
+  Matrix& operator/=(const T& value);
+  Matrix& operator%=(const T& value);
+
+  // Matrix addition
+  template<typename M>
+  Enable_if<Matrix_type<M>(), Matrix&> operator+=(const M& m);
+
+  // Matrix subtraction.
+  template<typename M>
+  Enable_if<Matrix_type<M>(), Matrix&> operator-=(const M& m);
+
 private:
   // Slice defining extents in the N dimensions.
   Matrix_slice<N> desc;

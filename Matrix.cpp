@@ -44,3 +44,98 @@ Matrix<T, N>& Matrix<T, N>::operator=(const Matrix_ref<U, N>& x) {
   elems.assign(x.begin(), x.end());
   return *this;
 }
+
+template<typename T, size_t N>
+Matrix_ref<T, N - 1> Matrix<T, N>::operator[](size_t n) {
+  return row(n);
+}
+
+template<typename T, size_t N>
+template<typename F>
+Matrix<T, N>& Matrix<T, N>::apply(F f) {
+  for (auto& x : elems) f(x);
+  return *this;
+}
+
+template<typename T, size_t N>
+template<typename M, typename F>
+Enable_if<Matrix_type<M>(), Matrix<T, N>&> Matrix<T, N>::apply(const M& m,
+                                                               F f) {
+  assert(same_extents(desc, m.descriptor()));
+
+  for (auto i = begin(), j = m.begin(); i != end(); ++i, ++j) {
+    f(*i, *j);
+  }
+  return *this;
+}
+
+template<typename T, size_t N>
+Matrix<T, N>& Matrix<T, N>::operator+=(const T& value) {
+  return apply([&](T& a) { a += value; });
+}
+template<typename T, size_t N>
+Matrix<T, N>& operator+(const Matrix<T, N> T& m, const T& value) {
+  Matrix<T, N> res = m;
+  res += m;
+  return res;
+}
+
+template<typename T, size_t N>
+Matrix<T, N>& Matrix<T, N>::operator-=(const T& value) {
+  return apply([&](T& a) { a -= value; });
+}
+template<typename T, size_t N>
+Matrix<T, N>& operator-(const Matrix<T, N> T& m, const T& value) {
+  Matrix<T, N> res = m;
+  res -= m;
+  return res;
+}
+
+template<typename T, size_t N>
+Matrix<T, N>& Matrix<T, N>::operator*=(const T& value) {
+  return apply([&](T& a) { a *= value; });
+}
+template<typename T, size_t N>
+Matrix<T, N>& operator*(const Matrix<T, N> T& m, const T& value) {
+  Matrix<T, N> res = m;
+  res *= m;
+  return res;
+}
+
+template<typename T, size_t N>
+Matrix<T, N>& Matrix<T, N>::operator/=(const T& value) {
+  return apply([&](T& a) { a /= value; });
+}
+template<typename T, size_t N>
+Matrix<T, N>& operator/(const Matrix<T, N> T& m, const T& value) {
+  Matrix<T, N> res = m;
+  res /= m;
+  return res;
+}
+
+template<typename T, size_t N>
+Matrix<T, N>& Matrix<T, N>::operator%=(const T& value) {
+  return apply([&](T& a) { a %= value; });
+}
+template<typename T, size_t N>
+Matrix<T, N>& operator%(const Matrix<T, N> T& m, const T& value) {
+  Matrix<T, N> res = m;
+  res %= m;
+  return res;
+}
+
+template<typename T, size_t N>
+template<typename M>
+Enable_if<Matrix_type<M>(), Matrix<T, N>&> Matrix<T, N>::operator+=(
+  const M& m) {
+  static_assert(m.order == N, "+=: mismatched Matrix dimensions");
+  assert(same_extents(desc, m.descriptor()));
+
+  return apply(m, [](T& a, const Value_type<M>& b) { a += b; });
+}
+template<typename T, size_t N>
+Matrix<T, N> operator+(const Matrix<T, N>& a, const Matrix<T, N>& b) {
+  Matrix<T, N> res = a;
+  res += b;
+  return res;
+}
